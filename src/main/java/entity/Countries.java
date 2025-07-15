@@ -2,49 +2,41 @@ package entity;
 
 import jakarta.persistence.*;
 
-
 @Entity
-@Table(name="Countries")
-public class Countries 
-{
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private int country_id;
+public class Countries {
 
-	@Column(name="country_name")
-	private String country_name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int country_id;
 
-	@ManyToOne
-	@JoinColumn(name = "region_id")
-	private Region region; 
+    private String country_name;
 
-	
-	public Countries() {}
+    @ManyToOne
+    @JoinColumn(name = "region_id") // foreign key column
+    private Region region;
 
-	public int getCountry_id() {
-		return country_id;
-	}
+    // Getters and setters
+    public int getCountry_id() {
+        return country_id;
+    }
 
-	public void setCountry_id(int country_id) {
-		this.country_id = country_id;
-	}
+    public void setCountry_id(int country_id) {
+        this.country_id = country_id;
+    }
 
-	public String getCountry_name() {
-		return country_name;
-	}
+    public String getCountry_name() {
+        return country_name;
+    }
 
-	public void setCountry_name(String country_name) {
-		this.country_name = country_name;
-	}
+    public void setCountry_name(String country_name) {
+        this.country_name = country_name;
+    }
 
-	public Region getRegion() {
-		return region;
-	}
+    public Region getRegion() {
+        return region;
+    }
 
-	public void setRegion(Region region) {
-		this.region = region;
-	}
-
-
-
+    public void setRegion(Region region) {
+        this.region = region;
+    }
 }

@@ -1,0 +1,6 @@
+service\CountriesService.class
+entity\Countries.class
+service\RegionService.class
+entity\Region.class
+app\main.class
+app\HibernateUtil.class

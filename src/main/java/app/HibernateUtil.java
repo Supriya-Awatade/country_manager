@@ -1,23 +1,25 @@
 package app;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import java.lang.ExceptionInInitializerError;
 
 public class HibernateUtil {
 
-    private static final SessionFactory sessionFactory;
+	private static final EntityManagerFactory entityManagerFactory;
+	static {
+		try {
+			entityManagerFactory = Persistence.createEntityManagerFactory("myPersistence");
 
-    static {
-        try {
-            sessionFactory = new Configuration().configure().buildSessionFactory();
-        } catch (Throwable ex) {
-            System.err.println("Initial SessionFactory creation failed: " + ex);
-            ex.printStackTrace();  // <<--- Add this line!
-            throw new ExceptionInInitializerError(ex);
-        }
-    }
+		}catch(Throwable e) { throw new ExceptionInInitializerError(e);}
+	}
 
-    public static SessionFactory getSessionFactory() {
-        return sessionFactory;
-    }
+	public static EntityManagerFactory getEntityManagerFactory() {
+		return entityManagerFactory;
+	}
+	public static void shutDown() {
+		if(entityManagerFactory!=null && entityManagerFactory.isOpen()) {
+			entityManagerFactory.close();
+		}
+	}
 }

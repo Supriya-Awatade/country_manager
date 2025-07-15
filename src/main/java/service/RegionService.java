@@ -1,56 +1,102 @@
 package service;
 
 import java.util.List;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
+import java.util.Scanner;
+
 import app.HibernateUtil;
 import entity.Region;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
-public class RegionService {
+public class RegionService 
+{
+	
+	Region region = new Region();
+	public void insertRegion() {
+	    Scanner scanner = new Scanner(System.in);
+	    System.out.print("Enter Region Name: ");
+	    String regionName = scanner.nextLine();
 
-    public void setRegion(Region r) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            session.persist(r);
-            transaction.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	    try (EntityManager em = HibernateUtil.getEntityManagerFactory().createEntityManager()) {
+	        List<Region> existing = em
+	            .createQuery("FROM Region WHERE region_name = :name", Region.class)
+	            .setParameter("name", regionName)
+	            .getResultList();
 
-    public List<Region> getAllRegion() {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("from Region", Region.class).list();
-        }
-    }
+	        if (!existing.isEmpty()) {
+	            System.out.println("Region already exists.");
+	            return;
+	        }
 
-    public void updateRegion(int region_id, String region_name) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            Region r1 = session.get(Region.class, region_id);
-            if (r1 != null) {
-                r1.setRegion_name(region_name);
-                session.merge(r1);
-            }
-            transaction.commit();
-        } catch (Exception ee) {
-            ee.printStackTrace();
-        }
-    }
+	        Region region = new Region();
+	        region.setRegion_name(regionName);
 
-    public void deleteRegion(int region_id) {
-        Transaction transaction = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            transaction = session.beginTransaction();
-            Region r2 = session.get(Region.class, region_id);
-            if (r2 != null) {
-                session.remove(r2);
-            }
-            transaction.commit();
-        } catch (Exception ee) {
-            ee.printStackTrace();
-        }
-    }
+	        EntityTransaction tx = em.getTransaction();
+	        tx.begin();
+	        em.persist(region);
+	        tx.commit();
+
+	        System.out.println("Region saved.");
+	    }
+	}
+
+        
+        public void saveRegions(Region region)throws Exception {
+    		EntityTransaction transaction=null;
+    		try(EntityManager entitymanager=HibernateUtil.getEntityManagerFactory().createEntityManager();){
+    			transaction=entitymanager.getTransaction();
+    			transaction.begin();
+    			entitymanager.persist(region);
+    			transaction.commit();
+    		}catch(Exception e) {e.printStackTrace();}
+    	}
+    	
+    	public List<Region> getAllRegions()throws Exception{
+    		try(EntityManager entitymanage=HibernateUtil.getEntityManagerFactory().createEntityManager();){
+    			return entitymanage.createQuery("from Region",Region.class).getResultList();
+    		}
+    	}
+    	
+    	public void updateRegion(int region_id,String newregion_name) throws Exception{
+    		EntityTransaction transaction=null;
+    		try(EntityManager entitymanager=HibernateUtil.getEntityManagerFactory().createEntityManager();){
+    			transaction=entitymanager.getTransaction();
+    			transaction.begin();
+    			Region e=entitymanager.find(Region.class, region_id);
+    			if(e!=null) {
+    				e.setRegion_name(newregion_name);
+    				entitymanager.merge(e);
+    			}
+    			transaction.commit();
+    		}catch(Exception ee) {ee.printStackTrace();}
+    	}
+    	
+    	public void deleteRegion() {
+    	    EntityTransaction transaction = null;
+    	    Scanner scanner = new Scanner(System.in);
+
+    	    System.out.print("Enter the Region ID to delete: ");
+    	    int regionId = scanner.nextInt();
+
+    	    try (EntityManager entityManager = HibernateUtil.getEntityManagerFactory().createEntityManager()) {
+    	        transaction = entityManager.getTransaction();
+    	        transaction.begin();
+
+    	        Region region = entityManager.find(Region.class, regionId);
+    	        if (region != null) {
+    	            entityManager.remove(region);
+    	            System.out.println("Region deleted successfully.");
+    	        } else {
+    	            System.out.println("Region not found with ID: " + regionId);
+    	        }
+
+    	        transaction.commit();
+    	    } catch (Exception e) {
+    	        if (transaction != null && transaction.isActive()) {
+    	            transaction.rollback();
+    	        }
+    	        e.printStackTrace();
+    	    }
+    	}
+
 }
